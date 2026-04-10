@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Europa 2026">
+<link rel="manifest" href="manifest.json">
+<title>Europa 2026 ✈️</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --card: #22223b;
+    --accent: #e8b86d;
+    --accent2: #c77dff;
+    --manha: #f4a261;
+    --tarde: #4cc9f0;
+    --noite: #7209b7;
+    --text: #e8e8f0;
+    --muted: #888898;
+    --border: rgba(232,184,109,0.15);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    overscroll-behavior: none;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px 0;
+    backdrop-filter: blur(12px);
+  }
+
+  .header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .search-wrap {
+    position: relative; flex: 1; margin: 0 12px;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 12px 8px 34px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap::before {
+    content: '🔍';
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 13px; pointer-events: none;
+  }
+  input::placeholder { color: var(--muted); }
+
+  /* ── NAV TABS ── */
+  nav {
+    display: flex; gap: 4px;
+    overflow-x: auto; padding-bottom: 0;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    font-size: 13px; font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(232,184,109,0.06);
+  }
+  .tab:hover { color: var(--text); }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    padding: 16px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* ── TODAY BANNER ── */
+  .today-banner {
+    background: linear-gradient(135deg, #16213e, #0f3460);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .today-banner .emoji { font-size: 28px; }
+  .today-banner h2 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--accent); }
+  .today-banner p { font-size: 13px; color: var(--muted); }
+
+  /* ── DAY CARD ── */
+  .day-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .day-card:hover { box-shadow: 0 4px 24px rgba(232,184,109,0.1); }
+
+  .day-header {
+    display: flex; align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    gap: 12px;
+  }
+
+  .day-num {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0f0f1a;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 13px;
+    border-radius: 10px;
+    padding: 4px 10px;
+    flex-shrink: 0;
+  }
+
+  .day-info { flex: 1; min-width: 0; }
+  .day-date { font-size: 12px; color: var(--muted); }
+  .day-city {
+    font-size: 16px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .day-chevron {
+    color: var(--muted);
+    font-size: 16px;
+    transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .day-card.open .day-chevron { transform: rotate(180deg); }
+
+  /* Hotel strip */
+  .hotel-strip {
+    padding: 0 16px 10px;
+    font-size: 12px; color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .hotel-strip .icon { color: var(--accent); }
+
+  /* ── EVENTS ── */
+  .events {
+    display: none;
+    padding: 12px 16px 14px;
+  }
+  .day-card.open .events { display: block; }
+
+  .period-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin: 10px 0 6px;
+    padding-left: 4px;
+  }
+  .period-MANHÃ { color: var(--manha); }
+  .period-TARDE { color: var(--tarde); }
+  .period-NOITE { color: var(--accent2); }
+
+  .event-item {
+    display: flex; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    align-items: flex-start;
+  }
+  .event-item:last-child { border-bottom: none; }
+
+  .event-time {
+    font-size: 12px; font-weight: 600;
+    color: var(--accent);
+    min-width: 38px;
+    padding-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .event-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  .event-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  /* ── CITY VIEW ── */
+  .city-section {
+    margin-bottom: 20px;
+  }
+  .city-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .city-period { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .city-hotel {
+    background: rgba(232,184,109,0.08);
+    border: 1px solid rgba(232,184,109,0.2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px; margin-bottom: 10px;
+    display: flex; gap: 8px; align-items: center;
+  }
+
+  .city-days-list { display: flex; flex-direction: column; gap: 8px; }
+
+  /* ── SEARCH RESULTS ── */
+  .search-result {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .search-result .sr-day { font-size: 12px; color: var(--accent); font-weight: 600; }
+  .search-result .sr-city { font-size: 11px; color: var(--muted); }
+  .search-result .sr-text { font-size: 14px; margin-top: 4px; }
+
+  /* ── EMPTY / OFFLINE ── */
+  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; }
+
+  .offline-badge {
+    background: rgba(199,125,255,0.15);
+    border: 1px solid rgba(199,125,255,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--accent2);
+    display: none;
+  }
+  .offline-badge.show { display: inline-block; }
+
+  /* ── TODAY HIGHLIGHT ── */
+  .is-today .day-header { background: rgba(232,184,109,0.06); }
+  .is-today .day-num { animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* ── ANIMATIONS ── */
+  .day-card { animation: fadeUp .3s ease both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Spinner */
+  .spinner {
+    display: none; text-align: center; padding: 48px;
+    color: var(--muted);
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    margin-top: 12px;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --muted: #6b6b7e;
+      --border: rgba(0,0,0,0.1);
+    }
+    .logo { background: linear-gradient(135deg, #b5892a, #7209b7); -webkit-background-clip: text; }
+    header { background: rgba(245,245,240,0.95); }
+    .today-banner { background: linear-gradient(135deg, #eee, #e0e0f5); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">✈ Europa 2026</div>
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="Buscar..." autocomplete="off">
+    </div>
+    <span class="offline-badge" id="offlineBadge">offline</span>
+  </div>
+  <nav id="tabs">
+    <button class="tab active" data-view="dias">📅 Dias</button>
+    <button class="tab" data-view="cidades">🗺️ Cidades</button>
+    <button class="tab" data-view="hoje">⭐ Hoje</button>
+  </nav>
+  <div class="progress-bar" id="progressBar" style="display:none"></div>
+</header>
+
+<main id="main"></main>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA — extraído da planilha CRONOGRAMA.xlsx
+// ═══════════════════════════════════════════════
+const DATA = [{"data":"2026-04-23","hotel_fernando":null,"hotel_bruno":null,"eventos":[{"hora":"10:00","periodo":"MANHÃ","descricao":"Aeroporto GYN"},{"hora":"14:00","periodo":"TARDE","descricao":"Chegada GRU (SP)"},{"hora":"19:00","periodo":"NOITE","descricao":"Saída GRU (SP)"},{"hora":"20:00","periodo":"NOITE","descricao":"VOO PARA MADRI"}],"cidade":"Brasil → Madri"},{"data":"2026-04-24","hotel_fernando":"RINCON DE GRANVIA - BOOKING","hotel_bruno":null,"eventos":[{"hora":"08:00","periodo":"MANHÃ","descricao":"Chegada em MADRI"},{"hora":"13:00","periodo":"TARDE","descricao":"Chegando ao hotel"},{"hora":"14:00","periodo":"TARDE","descricao":"Restaurante Vinitus"},{"hora":"15:00","periodo":"TARDE","descricao":"Primark"},{"hora":"18:00","periodo":"NOITE","descricao":"Puerta del Sol"},{"hora":"19:00","periodo":"NOITE","descricao":"Plaza Mayor"},{"hora":"20:00","periodo":"NOITE","descricao":"Sky 44 rooftop terraza & bar Madrid ou 360º sky bar ou bairro La Latina"}],"cidade":"Madri"},{"data":"2026-04-25","hotel_fernando":"RINCON DE GRANVIA - BOOKING","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã — Sugestão: Brunch Club"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Museu Cerralbo"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Andar até Puerta del Sol"},{"hora":"13:00","periodo":"TARDE","descricao":"Ver as estátuas e monumentos"},{"hora":"14:00","periodo":"TARDE","descricao":"Mercado de São Miguel — comer o presunto ibérico"},{"hora":"17:00","periodo":"TARDE","descricao":"Chocolatería San Ginés"},{"hora":"18:00","periodo":"NOITE","descricao":"Voltar para o hotel e se preparar para a noite"},{"hora":"21:00","periodo":"NOITE","descricao":"Apresentação de Flamenco — Corral de la Moreria (estrela Michelin)"}],"cidade":"Madri"},{"data":"2026-04-26","hotel_fernando":"RINCON DE GRANVIA - BOOKING","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"🎂 Aniversário da Jordana — restaurantes abrem mais tarde"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Billy Brunch"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Mercado de São Fernando"},{"hora":"14:00","periodo":"TARDE","descricao":"Sobrinho de Botín (restaurante mais antigo da Europa) ou paella fora do centro"},{"hora":"16:00","periodo":"TARDE","descricao":"Cheesecake na 99 Cheesecake ou Demasie Madrid (preferência: Demasie)"},{"hora":"21:00","periodo":"NOITE","descricao":"Calle 365 — Discoteca"}],"cidade":"Madri"},{"data":"2026-04-27","hotel_fernando":"IBIS PLAZA GLORIES 22 - ACCOR","hotel_bruno":null,"eventos":[{"hora":"08:00","periodo":"MANHÃ","descricao":"🚆 SAÍDA MADRI → BARCELONA — de trem (FEITO)"},{"hora":"14:00","periodo":"TARDE","descricao":"Check-in no hotel + organizar as malas"},{"hora":"16:00","periodo":"TARDE","descricao":"Almoço próximo ao hotel"},{"hora":"17:00","periodo":"TARDE","descricao":"Casa Milà — ver só por fora"},{"hora":"18:00","periodo":"NOITE","descricao":"Casa Batlló — ver só por fora"},{"hora":"19:00","periodo":"NOITE","descricao":"Plaça de Catalunya"},{"hora":"20:00","periodo":"NOITE","descricao":"Voltar ao hotel para tomar banho"},{"hora":"21:00","periodo":"NOITE","descricao":"Monk Bar"}],"cidade":"Madri → Barcelona"},{"data":"2026-04-28","hotel_fernando":"IBIS PLAZA GLORIES 22 - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã — Manifest Inspiring Brunch"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Sagrada Família"},{"hora":"13:00","periodo":"TARDE","descricao":"Almoço — Le Bistro Sensi ou La Plata"},{"hora":"14:00","periodo":"TARDE","descricao":"Doce na Demasie"},{"hora":"15:00","periodo":"TARDE","descricao":"Parc Güell"},{"hora":"17:00","periodo":"TARDE","descricao":"Catedral de Barcelona"},{"hora":"19:00","periodo":"NOITE","descricao":"Retorno ao hotel"},{"hora":"21:00","periodo":"NOITE","descricao":"Farola"}],"cidade":"Barcelona"},{"data":"2026-04-29","hotel_fernando":"IBIS PLAZA GLORIES 22 - ACCOR","hotel_bruno":null,"eventos":[{"hora":"11:00","periodo":"MANHÃ","descricao":"Arc de Triomf — ver por fora"},{"hora":"13:00","periodo":"TARDE","descricao":"Museu Picasso"},{"hora":"15:00","periodo":"TARDE","descricao":"Passar pela Plaça de Catalunya"},{"hora":"16:00","periodo":"TARDE","descricao":"Almoço — Mercado La Boqueria"},{"hora":"19:00","periodo":"NOITE","descricao":"Retorno ao hotel"},{"hora":"21:00","periodo":"NOITE","descricao":"Monoda Craft Cocktail Bar"}],"cidade":"Barcelona"},{"data":"2026-04-30","hotel_fernando":"IBIS PARIS MAINE - ACCOR","hotel_bruno":null,"eventos":[{"hora":"08:00","periodo":"MANHÃ","descricao":"✈️ SAÍDA BARCELONA → PARIS — de avião"},{"hora":"14:00","periodo":"TARDE","descricao":"Almoço (horário depende da chegada)"},{"hora":"15:00","periodo":"TARDE","descricao":"Catedral de Notre-Dame"},{"hora":"16:00","periodo":"TARDE","descricao":"Jardins de Luxemburgo"},{"hora":"18:00","periodo":"NOITE","descricao":"Jantar"},{"hora":"19:00","periodo":"NOITE","descricao":"Torre Eiffel à noite"}],"cidade":"Barcelona → Paris"},{"data":"2026-05-01","hotel_fernando":"IBIS PARIS MAINE - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"🎡 DIA TODO NA DISNEYLAND PARIS"},{"hora":"21:00","periodo":"NOITE","descricao":"Retorno de Disneyland"}],"cidade":"Paris / Disneyland"},{"data":"2026-05-02","hotel_fernando":"IBIS PARIS MAINE - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Louvre — no mínimo 3h"},{"hora":"14:00","periodo":"TARDE","descricao":"Jardim das Tulherias"},{"hora":"15:00","periodo":"TARDE","descricao":"Praça da Concórdia"},{"hora":"16:00","periodo":"TARDE","descricao":"Champs-Élysées"},{"hora":"17:00","periodo":"TARDE","descricao":"Arco do Triunfo — ver por fora"},{"hora":"21:00","periodo":"NOITE","descricao":"Jantar no barco pelo Rio Sena"}],"cidade":"Paris"},{"data":"2026-05-03","hotel_fernando":"IBIS PARIS MAINE - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Basílica do Sacré-Cœur"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Andar por Montmartre"},{"hora":"13:00","periodo":"TARDE","descricao":"Almoço"},{"hora":"14:00","periodo":"TARDE","descricao":"Tarde no bairro Le Marais"},{"hora":"16:00","periodo":"TARDE","descricao":"Palácio de Versalhes"},{"hora":"19:00","periodo":"NOITE","descricao":"Jantar"}],"cidade":"Paris"},{"data":"2026-05-04","hotel_fernando":null,"hotel_bruno":null,"eventos":[{"hora":"08:00","periodo":"MANHÃ","descricao":"🚆 SAÍDA PARIS → ZURIQUE — de trem (FEITO)"},{"hora":"16:00","periodo":"TARDE","descricao":"Lindt Home of Chocolate"},{"hora":"20:00","periodo":"NOITE","descricao":"Jantar: RACLETTE"}],"cidade":"Paris → Zurique"},{"data":"2026-05-05","hotel_fernando":null,"hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Manhã no centro histórico"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Lindenhof → Grossmünster → Fraumünster (ingresso) → Augustinergasse → Igreja de São Pedro"},{"hora":"13:00","periodo":"TARDE","descricao":"Almoço"},{"hora":"14:00","periodo":"TARDE","descricao":"Bahnhofstrasse → Lago de Zurique (Zürichsee) → Ópera de Zurique (Opernhaus)"},{"hora":"17:00","periodo":"TARDE","descricao":"Chocolate quente"},{"hora":"18:00","periodo":"NOITE","descricao":"Retorno ao hotel"},{"hora":"20:00","periodo":"NOITE","descricao":"Jantar: FONDUE"}],"cidade":"Zurique"},{"data":"2026-05-06","hotel_fernando":"IBIS MILANO CENTRO - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"🚂 Zurique → Chur (trem)"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Almoço em Chur"},{"hora":"12:00","periodo":"MANHÃ","descricao":"🏔️ Trem Bernina Express — paisagem alpina"},{"hora":"20:00","periodo":"NOITE","descricao":"Chegada Milão — jantar e dormir"}],"cidade":"Chur / Bernina"},{"data":"2026-05-07","hotel_fernando":"IBIS MILANO CENTRO - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Duomo di Milano"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Castello Sforzesco"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Museu Leonardo da Vinci"},{"hora":"14:00","periodo":"TARDE","descricao":"Mercado Central de Milão"},{"hora":"18:00","periodo":"NOITE","descricao":"🍝 Aula de massa fresca e tiramisu"}],"cidade":"Milão"},{"data":"2026-05-08","hotel_fernando":"HOTEL SAN MARCO - BOOKING","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Chegada a VERONA"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Check-in no hotel"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Casa de Julieta"},{"hora":"13:00","periodo":"TARDE","descricao":"Arena di Verona"},{"hora":"14:00","periodo":"TARDE","descricao":"Almoço na Piazza delle Erbe"},{"hora":"15:00","periodo":"TARDE","descricao":"Torre dei Lamberti — ingresso para subir"},{"hora":"16:00","periodo":"TARDE","descricao":"Andar pelo centro histórico"},{"hora":"18:00","periodo":"NOITE","descricao":"Jantar e bebidas em algum local"},{"hora":"22:00","periodo":"NOITE","descricao":"Retorno ao hotel"}],"cidade":"Verona"},{"data":"2026-05-09","hotel_fernando":"NOVOTEL PARMA CENTRO - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Chegada em PARMA"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Complexo da Pilotta"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Tomar um gelato"},{"hora":"14:00","periodo":"TARDE","descricao":"🧀 Degustação de queijos, vinhos e presuntos"},{"hora":"16:00","periodo":"TARDE","descricao":"Andar por lojinhas"},{"hora":"18:00","periodo":"NOITE","descricao":"Sentar em bar/restaurante e curtir a noite"}],"cidade":"Parma"},{"data":"2026-05-10","hotel_fernando":"IBIS FIRENZE NORD - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Chegada em FLORENÇA"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Catedral de Santa Maria del Fiore (Duomo)"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Battistero di San Giovanni"},{"hora":"13:00","periodo":"TARDE","descricao":"Piazza della Signoria"},{"hora":"14:00","periodo":"TARDE","descricao":"Almoço: All'Antico Vinaio — sanduíches gigantes famosos"},{"hora":"15:00","periodo":"TARDE","descricao":"Galleria degli Uffizi"},{"hora":"16:00","periodo":"TARDE","descricao":"Ponte Vecchio"},{"hora":"18:00","periodo":"NOITE","descricao":"Pôr do sol no Piazzale Michelangelo"},{"hora":"19:00","periodo":"NOITE","descricao":"Jantar no bairro Oltrarno: Osteria Santo Spirito ou Trattoria La Casalinga"}],"cidade":"Florença"},{"data":"2026-05-11","hotel_fernando":"IBIS FIRENZE NORD - ACCOR","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Galleria dell'Accademia"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Mercato Centrale di Firenze"},{"hora":"14:00","periodo":"TARDE","descricao":"Basílica de Santa Croce"},{"hora":"15:00","periodo":"TARDE","descricao":"Palácio Pitti"},{"hora":"16:00","periodo":"TARDE","descricao":"Jardins de Boboli"},{"hora":"17:00","periodo":"TARDE","descricao":"Passear pelo bairro Oltrarno"},{"hora":"18:00","periodo":"NOITE","descricao":"Jantar: Il Santo Bevitore ou Gusta Pizza"}],"cidade":"Florença"},{"data":"2026-05-12","hotel_fernando":"HOTEL EXECUTIVE - BOOKING","hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Chegada em SIENA"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Piazza del Campo"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Torre del Mangia"},{"hora":"13:00","periodo":"TARDE","descricao":"Palazzo Pubblico"},{"hora":"14:00","periodo":"TARDE","descricao":"Almoço"},{"hora":"15:00","periodo":"TARDE","descricao":"Catedral de Siena"},{"hora":"16:00","periodo":"TARDE","descricao":"Biblioteca Piccolomini"},{"hora":"17:00","periodo":"TARDE","descricao":"Passear pelo centro"},{"hora":"18:00","periodo":"NOITE","descricao":"Aperol + jantar"}],"cidade":"Siena"},{"data":"2026-05-13","hotel_fernando":null,"hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Chegada em ROMA"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Coliseu"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Fórum Romano"},{"hora":"13:00","periodo":"TARDE","descricao":"Monte Palatino"},{"hora":"14:00","periodo":"TARDE","descricao":"Almoço: Região Monti — La Taverna dei Fori Imperiali ou Ai Tre Scalini"},{"hora":"15:00","periodo":"TARDE","descricao":"Piazza Venezia"},{"hora":"16:00","periodo":"TARDE","descricao":"Panteão"},{"hora":"17:00","periodo":"TARDE","descricao":"Piazza Navona"},{"hora":"18:00","periodo":"NOITE","descricao":"Jantar em Trastevere"}],"cidade":"Roma"},{"data":"2026-05-14","hotel_fernando":null,"hotel_bruno":null,"eventos":[{"hora":"09:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Museus do Vaticano"},{"hora":"11:00","periodo":"MANHÃ","descricao":"Capela Sistina"},{"hora":"12:00","periodo":"MANHÃ","descricao":"Basílica de São Pedro"},{"hora":"13:00","periodo":"TARDE","descricao":"Almoço"},{"hora":"14:00","periodo":"TARDE","descricao":"Castel Sant'Angelo"},{"hora":"15:00","periodo":"TARDE","descricao":"Caminhada até Ponte Sant'Angelo"},{"hora":"16:00","periodo":"TARDE","descricao":"Explorar bairro Prati ou voltar ao centro"},{"hora":"17:00","periodo":"NOITE","descricao":"Jantar"}],"cidade":"Roma"},{"data":"2026-05-15","hotel_fernando":null,"hotel_bruno":null,"eventos":[{"hora":"08:00","periodo":"MANHÃ","descricao":"Café da manhã"},{"hora":"10:00","periodo":"MANHÃ","descricao":"Check-out e ida ao aeroporto (Roma FCO)"},{"hora":"13:00","periodo":"TARDE","descricao":"✈️ SAÍDA ROMA (FCO) → MADRI — de avião (FEITO)"},{"hora":"17:00","periodo":"TARDE","descricao":"Chegada Madri — dia livre, energia acabou, aproveite como quiser!"}],"cidade":"Roma → Madri"},{"data":"2026-05-16","hotel_fernando":null,"hotel_bruno":null,"eventos":[{"hora":"08:00","periodo":"MANHÃ","descricao":"✈️ SAÍDA MADRI (MAD) → GRU — de avião (FEITO)"}],"cidade":"Madri → Brasil"}];
+
+// ═══════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════
+let currentView = 'dias';
+let searchQuery = '';
+let openDays = new Set();
+
+const WEEK = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const MONTHS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+function parseDate(str) {
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function formatDate(str) {
+  const d = parseDate(str);
+  return `${WEEK[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+
+function getDayNum(str) {
+  const start = parseDate('2026-04-23');
+  const day = parseDate(str);
+  return Math.round((day - start) / 86400000) + 1;
+}
+
+function isToday(str) {
+  const now = new Date();
+  const d = parseDate(str);
+  return now.getFullYear() === d.getFullYear() &&
+         now.getMonth() === d.getMonth() &&
+         now.getDate() === d.getDate();
+}
+
+function isTripDay() {
+  const start = parseDate('2026-04-23');
+  const end = parseDate('2026-05-16');
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  return now >= start && now <= end;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════
+function renderEventList(eventos) {
+  if (!eventos.length) return '<div style="color:var(--muted);font-size:13px;padding:4px 0">Sem programação detalhada</div>';
+
+  let html = '';
+  let lastPeriod = null;
+
+  eventos.forEach(ev => {
+    if (ev.periodo && ev.periodo !== lastPeriod) {
+      const icons = {MANHÃ:'🌅',TARDE:'☀️',NOITE:'🌙'};
+      html += `<div class="period-label period-${ev.periodo}">${icons[ev.periodo] || ''} ${ev.periodo}</div>`;
+      lastPeriod = ev.periodo;
+    }
+    html += `<div class="event-item">
+      <span class="event-time">${ev.hora || ''}</span>
+      <span class="event-dot"></span>
+      <span class="event-text">${ev.descricao}</span>
+    </div>`;
+  });
+
+  return html;
+}
+
+function renderHotel(day) {
+  const h = day.hotel_fernando;
+  if (!h) return '';
+  const parts = h.split(' - ');
+  const nome = parts[0];
+  const plataforma = parts[1] || '';
+  return `<div class="hotel-strip">
+    <span class="icon">🏨</span>
+    <span>${nome}${plataforma ? ` <span style="color:var(--muted)">(${plataforma})</span>` : ''}</span>
+  </div>`;
+}
+
+function renderDayCard(day, autoOpen = false) {
+  const todayClass = isToday(day.data) ? 'is-today' : '';
+  const openClass = (openDays.has(day.data) || autoOpen) ? 'open' : '';
+  const dayNum = getDayNum(day.data);
+
+  return `<div class="day-card ${todayClass} ${openClass}" data-date="${day.data}">
+    <div class="day-header" onclick="toggleDay('${day.data}')">
+      <div class="day-num">Dia ${dayNum}</div>
+      <div class="day-info">
+        <div class="day-date">${formatDate(day.data)}</div>
+        <div class="day-city">${day.cidade}</div>
+      </div>
+      <div class="day-chevron">▼</div>
+    </div>
+    ${renderHotel(day)}
+    <div class="events">${renderEventList(day.eventos)}</div>
+  </div>`;
+}
+
+function toggleDay(date) {
+  if (openDays.has(date)) {
+    openDays.delete(date);
+  } else {
+    openDays.add(date);
+  }
+  const card = document.querySelector(`[data-date="${date}"]`);
+  if (card) card.classList.toggle('open');
+}
+
+// ── VIEWS ──
+function renderDias() {
+  const todayDay = DATA.find(d => isToday(d.data));
+  let html = '';
+
+  if (todayDay) {
+    openDays.add(todayDay.data);
+  }
+
+  html += DATA.map(d => renderDayCard(d)).join('');
+  return html;
+}
+
+function renderCidades() {
+  const cities = {};
+  DATA.forEach(day => {
+    const base = day.cidade.split(/[→\/]/)[0].trim();
+    if (!cities[base]) cities[base] = [];
+    cities[base].push(day);
+  });
+
+  let html = '';
+  Object.entries(cities).forEach(([city, days]) => {
+    const dates = days.map(d => formatDate(d.data));
+    const periodo = dates.length > 1
+      ? `${dates[0]} – ${dates[dates.length-1]}`
+      : dates[0];
+    const hotels = [...new Set(days.map(d => d.hotel_fernando).filter(Boolean))];
+
+    html += `<div class="city-section">
+      <div class="city-title">${city}</div>
+      <div class="city-period">📅 ${periodo}</div>
+      ${hotels.map(h => {
+        const [nome, plat] = h.split(' - ');
+        return `<div class="city-hotel">🏨 <strong>${nome}</strong>${plat ? ` — ${plat}` : ''}</div>`;
+      }).join('')}
+      <div class="city-days-list">
+        ${days.map(d => renderDayCard(d)).join('')}
+      </div>
+    </div>`;
+  });
+
+  return html;
+}
+
+function renderHoje() {
+  const now = new Date();
+  const start = parseDate('2026-04-23');
+  const end = parseDate('2026-05-16');
+
+  if (now < start) {
+    const diff = Math.ceil((start - now) / 86400000);
+    return `<div class="today-banner">
+      <div class="emoji">✈️</div>
+      <div>
+        <h2>A viagem começa em ${diff} dias!</h2>
+        <p>23 de abril de 2026 — Rumo à Europa!</p>
+      </div>
+    </div>` + renderDias();
+  }
+
+  if (now > end) {
+    return `<div class="today-banner">
+      <div class="emoji">🏠</div>
+      <div>
+        <h2>Viagem concluída!</h2>
+        <p>Que memórias incríveis 🇪🇺</p>
+      </div>
+    </div>`;
+  }
+
+  const todayData = DATA.find(d => isToday(d.data));
+  if (!todayData) return '<div class="empty"><div class="icon">📅</div><p>Sem dados para hoje</p></div>';
+
+  const dayNum = getDayNum(todayData.data);
+  const totalDays = 24;
+  const pct = Math.round((dayNum / totalDays) * 100);
+
+  return `<div class="today-banner">
+    <div class="emoji">📍</div>
+    <div style="flex:1">
+      <h2>Hoje — Dia ${dayNum} de ${totalDays}</h2>
+      <p>${todayData.cidade} &nbsp;·&nbsp; ${formatDate(todayData.data)}</p>
+      <div style="background:rgba(255,255,255,0.1);border-radius:4px;height:4px;margin-top:8px">
+        <div style="background:linear-gradient(90deg,var(--accent),var(--accent2));height:4px;border-radius:4px;width:${pct}%"></div>
+      </div>
+    </div>
+  </div>` + renderDayCard(todayData, true);
+}
+
+function renderSearch(q) {
+  const lq = q.toLowerCase();
+  const results = [];
+
+  DATA.forEach(day => {
+    day.eventos.forEach(ev => {
+      if (ev.descricao.toLowerCase().includes(lq) || day.cidade.toLowerCase().includes(lq)) {
+        results.push({ day, ev });
+      }
+    });
+  });
+
+  if (!results.length) {
+    return `<div class="empty"><div class="icon">🔍</div><p>Nenhum resultado para "<strong>${q}</strong>"</p></div>`;
+  }
+
+  return results.map(({day, ev}) => `
+    <div class="search-result">
+      <div class="sr-day">${formatDate(day.data)} · Dia ${getDayNum(day.data)}</div>
+      <div class="sr-city">${day.cidade}</div>
+      <div class="sr-text">${ev.hora ? `<strong>${ev.hora}</strong> — ` : ''}${ev.descricao}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// RENDER ENGINE
+// ═══════════════════════════════════════════════
+function render() {
+  const main = document.getElementById('main');
+
+  if (searchQuery.length >= 2) {
+    main.innerHTML = renderSearch(searchQuery);
+    return;
+  }
+
+  if (currentView === 'dias') main.innerHTML = renderDias();
+  else if (currentView === 'cidades') main.innerHTML = renderCidades();
+  else if (currentView === 'hoje') main.innerHTML = renderHoje();
+
+  // Scroll to today
+  if (currentView === 'dias' || currentView === 'hoje') {
+    const todayCard = document.querySelector('.is-today');
+    if (todayCard) {
+      setTimeout(() => todayCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════
+document.getElementById('tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentView = tab.dataset.view;
+  searchQuery = '';
+  document.getElementById('searchInput').value = '';
+  render();
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  render();
+});
+
+// Offline detection
+window.addEventListener('online', () => document.getElementById('offlineBadge').classList.remove('show'));
+window.addEventListener('offline', () => document.getElementById('offlineBadge').classList.add('show'));
+if (!navigator.onLine) document.getElementById('offlineBadge').classList.add('show');
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+if (isTripDay()) {
+  currentView = 'hoje';
+  document.querySelector('[data-view="hoje"]').classList.add('active');
+  document.querySelector('[data-view="dias"]').classList.remove('active');
+}
+
+render();
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
